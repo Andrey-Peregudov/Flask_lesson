@@ -1,5 +1,23 @@
 {% extends "base.html" %}
 {% block content %}
-   <h2> Page Index </h2>
+    <h2> Каталог магазина одежды </h2>
+    {% for i in tovars %}
+        <div class="col-md-12 text-center">
+            <div class="card">
+                <img class="card-img-top" width="200" height="200" src="..." alt="Здесь будет фото товара. Но потом">
+                <div class="card-body">
+                    <h5 class="card-title">{{ i.name }}</h5>
+                    <p class="card-text">{{ i.ostatok }} шт</p>
+                    <p class="card-text">{{ i.price }} руб</p>
+                    <a href="{{ url_for('tovar_page', id=i.id) }}" class="btn btn-primary">Страница товара</a>
+                    <a href="{{ url_for('tovar_kupit', id=i.id) }}" class="btn btn-primary">Купить товар</a>
+                    <a href="{{ url_for('add_ten_tovar', id=i.id) }}" class="btn btn-primary">Добавить 10 товаров на склад</a>
+                </div>
+            </div>
+        </div>
 
+
+        <hr>
+    {% endfor %}
 {% endblock %}
+

@@ -15,12 +15,6 @@
         <p>
             {{ form2.pasword.label }}<br>
             {{ form2.pasword(size=32) }}
-
-            {% if pasword >= 6 %}
-            {% for error in form2.pasword.errors %}
-                <span style="color: red">[{{ error }}]</span>
-            {% enif %}
-            {% endfor %}
         </p>
         <p>
             {{ form2.remember_me() }} {{ form2.remember_me.label }}
