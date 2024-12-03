@@ -10,9 +10,9 @@ def seeds():
     data3 = User(name="Nikolay",  is_active=True)
     data3.set_password('111')
 
-    data4 = Tovar(name="Костюм", price=50, ostatok=20, url_photo="111.jpg")
-    data5 = Tovar(name="Брюки", price=150, ostatok=14, url_photo="111.jpg")
-    data6 = Tovar(name="Рубашка", price=250, ostatok=10, url_photo="111.jpg")
+    data4 = Tovar(name="Костюм", price=50, ostatok=20, url_photo="suit.jpg")
+    data5 = Tovar(name="Брюки", price=150, ostatok=14, url_photo="trousers.jpg")
+    data6 = Tovar(name="Рубашка", price=250, ostatok=10, url_photo="shirt.jpg")
 
     db.session.add(data)
     db.session.add(data2)
