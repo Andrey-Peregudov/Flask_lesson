@@ -9,7 +9,7 @@
 </head>
 <body>
 <div class="col-md-12 text-center">
-    <h1><span tyle="color:blue;">ФЛАСК</span> магазин</h1>
+    <h1>ФЛАСК магазин</h1>
 </div>
 <hr>
 {% with message=get_flashed_messages() %}
@@ -25,9 +25,17 @@
     {% endif %}
 {% endwith %}
 <div class="col-md-12 text-center">
-      <a class="btn btn-outline-primary" href="{{ url_for('index') }}">Каталог </a>
-      <a class="btn btn-outline-success" href="{{ url_for('login') }}">Аккаунт</a>
-      <a class="btn btn-outline-danger" href="{{ url_for('tovar_add') }}">Добавить товар</a>
+    <a class="btn btn-outline-primary" href="{{ url_for('index') }}">Каталог </a>
+    {% if current_user.is_authenticated %}
+        <a class="btn btn-outline-danger" href="{{ url_for('tovar_add') }}">Добавить товар</a>
+        <a class="btn btn-outline-danger" href="{{ url_for('user_data') }}">Cтраница пользователя</a>
+{% endif %}
+    {% if current_user.is_anonymous %}
+      <a class="btn btn-outline-primary" href="{{ url_for('login') }}">Войти</a>
+    {% else %}
+      <a class="btn btn-outline-danger" href="{{ url_for('logout') }}">Выйти</a>
+    {% endif %}
+
 </div>
 <hr>
 {% block content %} {% endblock %}

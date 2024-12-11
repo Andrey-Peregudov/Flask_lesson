@@ -4,7 +4,7 @@ from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from database import Config
 from forms import LoginForm, TovarForm
-from flask_login import LoginManager, current_user, login_user
+from flask_login import LoginManager, current_user, login_user, login_required, logout_user
 import uuid
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
@@ -19,12 +19,14 @@ db = SQLAlchemy(app)
 
 migrate = Migrate(app, db)
 
-from models import User, Tovar
+from models import User, Tovar, Zakaz, Address
+
+korzina = []
 
 with app.app_context():
     db.create_all()
     have_user = User.query.first()
-    # print(have_user)
+    print(have_user)
     if not have_user:
         from seed import seeds
 
@@ -32,10 +34,24 @@ with app.app_context():
 
 
 @app.route('/')
+@app.route('/index')
 def index():
-    # form=GoTovarForm()
+    global korzina
     tovar = Tovar.query.all()
-    return render_template('index.html', tovars=tovar)
+    kolvo = len(korzina)
+
+    return render_template('index.html', tovars=tovar, korzina=kolvo)
+
+
+@app.route('/user_data', methods=['GET', 'POST'])
+def user_data():
+    tovar = [zakaz.tovars.name for zakaz in Zakaz.query.all()]
+    user_name = [zakaz.users.name for zakaz in Zakaz.query.all()]
+    quantity = [zakaz.quantity for zakaz in Zakaz.query.all()]
+    price = [zakaz.tovars.price for zakaz in Zakaz.query.all()]
+    return render_template('user_data.html', user_name=user_name, tovar=tovar, quantity=quantity, price=price)
+# user=user, data=data
+
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -45,7 +61,7 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(name=form.username.data).first()
-        print('*'*20)
+        print('*' * 20)
         print(user)
         if user is None or not user.check_password(form.pasword.data):
             flash('Invalid username or password')
@@ -54,6 +70,13 @@ def login():
 
         return redirect(url_for('index'))
     return render_template('login_enter.html', form=form)
+
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
 
 @app.route('/user_reg', methods=['GET', 'POST'])
 def user_reg():
@@ -69,8 +92,9 @@ def user_reg():
 
 
 @app.route('/tovar_add', methods=['GET', 'POST'])
+@login_required
 def tovar_add():
-
+    # flash(current_user.name)
     form = TovarForm()
     print('Func add work')
     if form.validate_on_submit():
@@ -116,7 +140,9 @@ def del_tovar(tovar_id: int):
 def tovar_kupit():
     id = request.args.get('id')
     print(id)
+    global korzina
     data = Tovar.query.get(id)
+    korzina.append(data)
     data.ostatok = data.ostatok - 1
     db.session.commit()
     print(data)
@@ -140,16 +166,25 @@ def name_tovar(tovar_id: int, new_name: str):
     return redirect(url_for('index'))
 
 
-# @app.route('/upload', methods=['POST'])
-# def upload():
-#     if request.method == 'POST':
-#         file = request.files['file']  # загрузка файла для дальнейшей обработки
-#         file.save(os.path.join('app/static', file.filename))  # сохранение
-#
-#         return redirect(request.referrer)
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('404.html'), 404
+
+
+@app.errorhandler(400)
+def error_400(error):
+    return render_template('400.html'), 400
+
+
+@app.errorhandler(401)
+def error_401(error):
+    return render_template('401.html'), 401
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    return render_template('500.html'), 500
 
 
 if __name__ == '__main__':
-    # with app.app_context():
-    #     db.create_all()
     app.run(port=5001, debug=True)
